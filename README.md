@@ -1,4 +1,4 @@
-A rudimentary mandelbrot render using pixels framework in Rust.
+A simple mandelbrot render using pixels framework in Rust.
 
 To run: 
     
