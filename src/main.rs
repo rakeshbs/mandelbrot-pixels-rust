@@ -16,17 +16,17 @@ use winit_input_helper::WinitInputHelper;
 const WIDTH: u32 = 1280;
 const HEIGHT: u32 = 720;
 const SCALE_FACTOR: f64 = 300.;
-const MAX_ITERATIONS: u16 = 100;
+const MAX_ITERATIONS: u16 = 75;
 
 struct Mandelbrot {
     scale: f64,
-    offsetX: f64,
-    offsetY: f64,
+    offset_x: f64,
+    offset_y: f64,
 }
 
 fn main() -> Result<(), Error> {
     rayon::ThreadPoolBuilder::new()
-        .num_threads(16)
+        .num_threads(8)
         .build_global()
         .unwrap();
 
@@ -50,8 +50,8 @@ fn main() -> Result<(), Error> {
     };
     let mut mandelbrot = Mandelbrot {
         scale: 1.,
-        offsetX: 0.,
-        offsetY: 0.,
+        offset_x: -250.01,
+        offset_y: -60.0,
     };
 
     event_loop.run(move |event, _, control_flow| {
@@ -76,7 +76,7 @@ fn main() -> Result<(), Error> {
                 pixels.resize_surface(size.width, size.height);
             }
 
-            mandelbrot.scale += 0.05;
+            mandelbrot.scale += mandelbrot.scale * 0.01;
             mandelbrot.update();
             window.request_redraw();
         }
@@ -109,14 +109,14 @@ impl Mandelbrot {
         set.par_iter()
             .enumerate()
             .map(|(i, _)| {
+                let scale = self.scale;
                 let w = WIDTH as usize;
                 let h = HEIGHT as usize;
                 let mut x = (i % w) as f64 - w as f64 / 2.;
                 let mut y = (i / w) as f64 - h as f64 / 2.;
-                x += self.offsetX;
-                y += self.offsetY;
+                x += self.offset_x * scale;
+                y += self.offset_y * scale;
 
-                let scale = self.scale;
                 x /= SCALE_FACTOR * scale;
                 y /= SCALE_FACTOR * scale;
                 Mandelbrot::check_point_inside_set(x, y)
